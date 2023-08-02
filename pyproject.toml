@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "dblinguo"
+version = "0.1.0"
+description = "Duolingo Backup"
+authors = ["Alexandar Mechev <apmechev@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+duolingo-api = "^0.5.4"
+
+[tool.poetry.group.dev.dependencies]
+ipython = "^8.14.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
