@@ -16,15 +16,15 @@ import logging
 import os
 
 import duolingo
-import owncloud
 
-from dblingo.settings import DUOLINGO_JWT, USERNAME, NEXTCLOUD_LINK, FILENAME_PATH
+from dblingo.sinks.jsonl import JSONLSink
+from dblingo.stores.owncloud import OwncloudStore
+from dblingo.settings import DUOLINGO_JWT, USERNAME, FILENAME_PATH
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 lingo = duolingo.Duolingo(USERNAME, jwt=DUOLINGO_JWT)
-oc = owncloud.Client.from_public_link(NEXTCLOUD_LINK)
 
 
 def get_cals(langs):
@@ -102,12 +102,24 @@ def get_skills_dict():
 
 
 if __name__ == "__main__":
+    # Todo: iterate over all languages
+    # and return to the currently selected one
     study_langs = ["it"]
-    # todo: loop over languages, cache and merge before updating file
+
+    sink = JSONLSink(FILENAME_PATH)
+
+    store = OwncloudStore()
+
     cals = get_cals(study_langs)
     skills_dict = get_skills_dict()
+
     for language in study_langs:
         cal_data = cals[language]
-        last_timestamp = get_last_datetime(language)
-        write_to_jsonl(cal_data, skills_dict, last_timestamp)
-        oc.drop_file(FILENAME_PATH)
+        last_timestamp = sink.get_last_timestamp()
+
+        new_data = [augment_course(item, skills_dict) for item in cal_data if item["datetime"] > last_timestamp]
+        sink.append(new_data)
+
+        # Todo: if a store is configured, first
+        # update the sink file
+        # store.upload(FILENAME_PATH)

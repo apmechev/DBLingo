@@ -255,13 +255,17 @@ version = "0.5.4"
 description = "Unofficial API for duolingo.com"
 optional = false
 python-versions = "*"
-files = [
-    {file = "duolingo-api-0.5.4.tar.gz", hash = "sha256:ccbaab5849e42f27b39b9847bc3503242d76730b92eb3cd885921ce6c996424c"},
-    {file = "duolingo_api-0.5.4-py3-none-any.whl", hash = "sha256:19de6c2d4fdb4c3e41a6a27aeba4d99b93be149b7a8cee5ece7dbc60c6561756"},
-]
+files = []
+develop = false
 
 [package.dependencies]
 requests = "*"
+
+[package.source]
+type = "git"
+url = "https://github.com/AidanCuff/Duolingo.git"
+reference = "HEAD"
+resolved_reference = "c25666a49f131ffb3d152188e95d4af058bc5ab3"
 
 [[package]]
 name = "executing"
@@ -831,4 +835,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "05ef9ec647b33772389ea240294455660ebe5dddc252844b6a80da27486626a3"
+content-hash = "0d71a270602a144a6229b865a91356c7f1af23017a43d44a13f196d43bb0fd3e"

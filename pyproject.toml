@@ -1,14 +1,14 @@
 [tool.poetry]
-name = "dblinguo"
+name = "dblingo"
 version = "0.1.0"
-description = "Duolingo Backup"
+description = "Duolingo Backup tool"
 authors = ["Alexandar Mechev <apmechev@gmail.com>"]
 license = "MIT"
 readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.9"
-duolingo-api = "^0.5.4"
+duolingo-api = {git = "https://github.com/AidanCuff/Duolingo.git"}
 pyocclient = "^0.6"
 
 [tool.poetry.group.dev.dependencies]
