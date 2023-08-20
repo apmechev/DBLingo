@@ -38,28 +38,6 @@ def get_cals(langs):
     return calendars
 
 
-def get_last_datetime(lang):
-    """Get last datetime for given language"""
-    filename = f"data/duolingo_cal_{lang}.jsonl"
-    if not os.path.isfile(filename):
-        return 0
-    with open(filename, "r", encoding='utf-8') as _f:
-        last_line = _f.readlines()[-1]
-    if not last_line or "datetime" not in last_line:
-        return 0
-    return json.loads(last_line)["datetime"]
-
-
-def write_to_jsonl(cal, skills, last_datetime):
-    """Write to jsonl file, appending to the file"""
-    with open(FILENAME_PATH, "a+", encoding='utf-8') as _f:
-        for item in cal:
-            if item["datetime"] <= last_datetime:
-                continue
-            item = augment_course(item, skills)
-            _f.write(json.dumps(item) + "\n")
-
-
 def augment_course(item, skills):
     """Augment course with skills data"""
     if not item.get("skill_id"):
