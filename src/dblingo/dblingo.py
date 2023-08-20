@@ -24,7 +24,9 @@ logger = logging.getLogger(__name__)
 
 def login():
     """Login to duolingo"""
-    return duolingo.Duolingo(USERNAME, DUOLINGO_JWT)
+    logger.info("Logging in to duolingo")
+    lingo = duolingo.Duolingo(USERNAME, jwt=DUOLINGO_JWT)
+    return lingo
 
 
 def get_cals(lingo, langs):
