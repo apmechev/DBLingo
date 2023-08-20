@@ -11,9 +11,7 @@
         None
 """
 
-import json
 import logging
-import os
 
 import duolingo
 
@@ -24,10 +22,12 @@ from dblingo.settings import DUOLINGO_JWT, USERNAME, FILENAME_PATH
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-lingo = duolingo.Duolingo(USERNAME, jwt=DUOLINGO_JWT)
+def login():
+    """Login to duolingo"""
+    return duolingo.Duolingo(USERNAME, DUOLINGO_JWT)
 
 
-def get_cals(langs):
+def get_cals(lingo, langs):
     """Get study calendars for given languages"""
     calendars = {}
     for lang in langs:
@@ -61,7 +61,7 @@ def augment_course(item, skills):
     return item
 
 
-def get_skills_dict():
+def get_skills_dict(lingo):
     """Get skills dictionary
     This dict has data for each 'course' in a language.
     And can be used to add data to each lesson"""
@@ -82,14 +82,15 @@ def get_skills_dict():
 if __name__ == "__main__":
     # Todo: iterate over all languages
     # and return to the currently selected one
+    lingo = login()
     study_langs = ["it"]
 
     sink = JSONLSink(FILENAME_PATH)
 
     store = OwncloudStore()
 
-    cals = get_cals(study_langs)
-    skills_dict = get_skills_dict()
+    cals = get_cals(lingo, study_langs)
+    skills_dict = get_skills_dict(lingo)
 
     for language in study_langs:
         cal_data = cals[language]

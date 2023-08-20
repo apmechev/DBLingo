@@ -5,17 +5,26 @@ description = "Duolingo Backup tool"
 authors = ["Alexandar Mechev <apmechev@gmail.com>"]
 license = "MIT"
 readme = "README.md"
+packages = [
+    { include = "dblingo", from = "src" },
+]
 
 [tool.poetry.dependencies]
 python = "^3.9"
 duolingo-api = {git = "https://github.com/AidanCuff/Duolingo.git"}
 pyocclient = "^0.6"
+python-dotenv = "^1.0.0"
 
 [tool.poetry.group.dev.dependencies]
 ipython = "^8.14.0"
 pylint = "^2.17.5"
 black = "^23.7.0"
+pytest = "^7.4.0"
+pytest-mock = "^3.11.1"
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+python_paths = ["src"]
