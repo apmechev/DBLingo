@@ -1,8 +1,8 @@
 import os
 import json
+from . import AbstractSink
 
-
-class JSONLSink:
+class JSONLSink(AbstractSink):
     def __init__(self, file_path):
         self.file_path = file_path
         self.create()

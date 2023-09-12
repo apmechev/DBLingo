@@ -16,7 +16,7 @@ import logging
 import duolingo
 
 from dblingo.sinks.jsonl import JSONLSink
-from dblingo.stores.owncloud import OwncloudStore
+from dblingo.remotes.owncloud import OwncloudRemote
 from dblingo.settings import DUOLINGO_JWT, USERNAME, FILENAME_PATH
 
 logging.basicConfig(level=logging.INFO)
@@ -87,20 +87,22 @@ if __name__ == "__main__":
     lingo = login()
     study_langs = ["it"]
 
-    sink = JSONLSink(FILENAME_PATH)
-
-    store = OwncloudStore()
+    sinks = [JSONLSink(FILENAME_PATH)]
+    remotes = [OwncloudRemote()]
 
     cals = get_cals(lingo, study_langs)
     skills_dict = get_skills_dict(lingo)
+
 
     for language in study_langs:
         cal_data = cals[language]
         last_timestamp = sink.get_last_timestamp()
 
-        new_data = [augment_course(item, skills_dict) for item in cal_data if item["datetime"] > last_timestamp]
-        sink.append(new_data)
+        for sink in sinks:
+            last_timestamp = sink.get_last_timestamp()
+            new_data = [augment_course(item, skills_dict) for item in cal_data if item["datetime"] > last_timestamp]
+            sink.append(new_data)
 
-        # Todo: if a store is configured, first
-        # update the sink file
-        # store.upload(FILENAME_PATH)
+        for store in remotes:
+            store.upload(FILENAME_PATH)
+ 
