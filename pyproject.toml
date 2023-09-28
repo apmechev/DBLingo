@@ -14,6 +14,8 @@ python = "^3.9"
 duolingo-api = {git = "https://github.com/AidanCuff/Duolingo.git"}
 pyocclient = "^0.6"
 python-dotenv = "^1.0.0"
+selenium = "^4.13.0"
+webdriver-manager = "^4.0.1"
 
 [tool.poetry.group.dev.dependencies]
 ipython = "^8.14.0"
