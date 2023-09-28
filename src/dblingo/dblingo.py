@@ -96,7 +96,6 @@ if __name__ == "__main__":
 
     for language in study_langs:
         cal_data = cals[language]
-        last_timestamp = sink.get_last_timestamp()
 
         for sink in sinks:
             last_timestamp = sink.get_last_timestamp()
