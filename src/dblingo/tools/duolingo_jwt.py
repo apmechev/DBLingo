@@ -1,4 +1,6 @@
 import os
+from time import sleep
+
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service as BraveService
@@ -50,6 +52,7 @@ def get_jwt_token(user_name, password):
     password_field.send_keys(password)
     login_button = driver.find_element(By.XPATH, '//*[@id="overlays"]/div[3]/div/div/form/div[1]/button')
     login_button.click()
+    sleep(5)
 
     jwt_cookie = driver.get_cookie('jwt_token')
     jwt_token = jwt_cookie['value']
