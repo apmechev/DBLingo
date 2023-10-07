@@ -19,5 +19,13 @@ just run
 You need to have the following environment variables set:
 
 - `DBLINGO_USER`: your Duolingo username
-- `DBLINGO_JWT`: your Duolingo JWT token (take it from the `token` field in the Network tab [here](https://github.com/KartikTalwar/Duolingo/issues/128#issuecomment-1437293650))
+- `DBLINGO_JWT`: your Duolingo JWT token (see below) (Also this may break the Duolingo TOS, so use at your own risk)
 - `NEXTCLOUD_LINK`: the link to the Nextcloud path to save the data
+
+### JWT token
+
+You can programmatically get the JWT token by running the command below. This command requires your username and password, and also a browser that is supported by Selenium. 
+
+```bash
+just get-token
+```
