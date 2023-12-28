@@ -44,3 +44,26 @@ def test_get_skills_dict(mocker):
  
     result = get_skills_dict(mock_lingo)
     assert result == {"123": {"id": "123", "data": "data"}}
+
+def test_login(mocker):
+    mock_lingo = mocker.MagicMock()
+    mocker.patch('duolingo.Duolingo', return_value=mock_lingo)
+    from dblingo.dblingo import login
+    result = login()
+    assert result == mock_lingo
+
+def test_owncloud_remote_init(mocker,monkeypatch):
+    mock_client = mocker.MagicMock()
+    mocker.patch('owncloud.Client.from_public_link', return_value=mock_client)
+    from dblingo.remotes.owncloud import OwncloudRemote
+    remote = OwncloudRemote()
+    assert remote.client == mock_client
+
+def test_owncloud_remote_upload(mocker,monkeypatch):
+    mock_client = mocker.MagicMock()
+    mocker.patch('owncloud.Client.from_public_link', return_value=mock_client)
+    from dblingo.remotes.owncloud import OwncloudRemote
+    remote = OwncloudRemote()
+    remote.upload('file_path')
+    mock_client.put_file.assert_called_once_with('file_path', 'file_path')
+
