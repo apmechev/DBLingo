@@ -28,6 +28,14 @@ def login():
     lingo = duolingo.Duolingo(USERNAME, jwt=DUOLINGO_JWT)
     return lingo
 
+def get_languages(lingo):
+    """Get languages for user"""
+    #logger.info("Getting languages")
+    current_language_full = lingo.get_user_info().get("learning_language_string")
+    current_language = lingo.get_abbreviation_of(current_language_full)
+    all_languages = lingo.get_languages(True)
+    return current_language, list(filter(lambda x: x != current_language, all_languages))
+
 
 def get_cals(lingo, langs):
     """Get study calendars for given languages"""
@@ -85,23 +93,32 @@ if __name__ == "__main__":
     # Todo: iterate over all languages
     # and return to the currently selected one
     lingo = login()
-    study_langs = ["it"]
+    study_lang, other_langs  = get_languages(lingo)
 
     sinks = [JSONLSink(FILENAME_PATH)]
     remotes = [OwncloudRemote()]
 
-    cals = get_cals(lingo, study_langs)
-    skills_dict = get_skills_dict(lingo)
+    cals = get_cals(lingo, other_langs + [study_lang])
+    for sink in sinks:
+        last_timestamp = sink.get_last_timestamp()
+    
+        for language in [study_lang]: ##The calendar is the same for all languages
+            skills_dict = get_skills_dict(lingo)
 
+            cal_data = cals[language]
+            language_string = lingo.get_language_from_abbr(language)
 
-    for language in study_langs:
-        cal_data = cals[language]
 
         for sink in sinks:
             last_timestamp = sink.get_last_timestamp()
+            
+        for sink in sinks:
+            last_timestamp = sink.get_last_timestamp()
             new_data = [augment_course(item, skills_dict) for item in cal_data if item["datetime"] > last_timestamp]
+            for i in new_data:
+                i["l"] = language_string
             sink.append(new_data)
 
-        for store in remotes:
+    for store in remotes:
             store.upload(FILENAME_PATH)
  
