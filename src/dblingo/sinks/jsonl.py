@@ -8,16 +8,22 @@ class JSONLSink(AbstractSink):
         self.create()
 
     def append(self, data):
+        """Append data to the file
+
+        Args:
+            data (list): list of dicts
+        """
         with open(self.file_path, "a+") as _f:
             for item in data:
                 _f.write(json.dumps(item) + "\n")
 
     def create(self):
         """Create the file if it doesn't exist"""
-        if not os.path.exists('data'):
-            os.makedirs('data')
+        dir_path = os.path.dirname(self.file_path)
+        if not os.path.exists(dir_path):
+            os.makedirs(dir_path)
         if not os.path.isfile(self.file_path):
-            with open(self.file_path, "w") as _f:
+            with open(self.file_path, 'w'):
                 pass
 
     def get_last_timestamp(self):

@@ -1,6 +1,4 @@
 # tests/test_dblingo.py
-import os
-import pytest
 from dotenv import load_dotenv
 
 load_dotenv(dotenv_path='.env.sample', verbose=True)
