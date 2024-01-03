@@ -1,4 +1,3 @@
-
 test: 
     poetry run pytest tests/ 
 
@@ -7,3 +6,12 @@ run:
 
 get-token:
     poetry run python src/dblingo/tools/duolingo_jwt.py
+
+install:
+    poetry install
+
+lint: 
+    poetry run ruff src tests
+
+lint-fix:
+    poetry run ruff src tests --fix

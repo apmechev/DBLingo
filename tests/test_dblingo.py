@@ -1,9 +1,9 @@
 # tests/test_dblingo.py
+from dblingo.dblingo import get_cals, augment_course, get_skills_dict
 from dotenv import load_dotenv
 
 load_dotenv(dotenv_path='.env.sample', verbose=True)
 
-from dblingo.dblingo import get_cals, augment_course, get_skills_dict
 
 def test_get_cals(mocker):
     mock_calendar = [{"skill_id": None, "improvement": 86, "event_type": None, "datetime": 1689924250000}]

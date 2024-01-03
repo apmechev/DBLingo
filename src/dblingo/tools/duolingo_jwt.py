@@ -5,7 +5,6 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service as BraveService
 from selenium.webdriver.chrome.service import Service as ChromeService
-from selenium.webdriver.chrome.service import Service as ChromiumService
 from selenium.webdriver.firefox.service import Service as FirefoxService
 from webdriver_manager.core.os_manager import ChromeType
 
@@ -19,18 +18,18 @@ def get_webdriver():
     try:
         return webdriver.Chrome(service=BraveService(ChromeDriverManager(chrome_type=ChromeType.BRAVE).install()))
     except Exception as e:
-        print("Failed to find brave", e)
+        print(f"Failed to find brave, {e}")
     try:
         return webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()))
     except Exception as e:
-        print("Failed to find chrome", e)
+        print(f"Failed to find chrome, {e}")
     try:
         return webdriver.Chrome(service=ChromeService(ChromeDriverManager(chrome_type=ChromeType.CHROMIUM).install()))
     except Exception as e:
-        print("Failed to find chromium", e)
+        print(f"Failed to find chromium, {e}")
     try: 
         return webdriver.Firefox(service=FirefoxService(GeckoDriverManager().install()))
-    except:
+    except Exception:
         raise Exception("Failed to find any browser")
 
 def get_jwt_token(user_name, password):
@@ -55,9 +54,12 @@ def get_jwt_token(user_name, password):
     sleep(5)
 
     jwt_cookie = driver.get_cookie('jwt_token')
-    jwt_token = jwt_cookie['value']
-    print(f"your JWT token is {jwt_token}")
     driver.close()
+    if jwt_cookie is not None:
+        jwt_token = jwt_cookie['value']
+        print(f"your JWT token is {jwt_token}")
+    else:
+        raise Exception("Failed to retrieve JWT token.")
     return jwt_token
 
 if __name__ == "__main__":
