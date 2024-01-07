@@ -14,6 +14,12 @@ or if you have just installed, run
 just run
 ```
 
+## Installation
+
+```bash
+just install
+```
+
 ## Configuration
 
 You need to have the following environment variables set:
@@ -24,7 +30,7 @@ You need to have the following environment variables set:
 
 ### JWT token
 
-You can programmatically get the JWT token by running the command below. This command requires your username and password, and also a browser that is supported by Selenium. 
+You can programmatically get the JWT token by running the command below. This command requires your username and password, and also a browser that is supported by Selenium.
 
 ```bash
 just get-token
