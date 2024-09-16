@@ -19,7 +19,10 @@ from dblingo.sinks.jsonl import JSONLSink
 from dblingo.remotes.owncloud import OwncloudRemote
 from dblingo.settings import DUOLINGO_JWT, USERNAME, FILENAME_PATH
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
 def login():

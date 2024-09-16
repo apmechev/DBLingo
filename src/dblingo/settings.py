@@ -3,10 +3,11 @@ import sys
 from dotenv import load_dotenv
 
 def get_required_env_variable(var_name):
-    try:
-        return os.environ[var_name]
-    except KeyError:
-        sys.exit(f"The environment variable {var_name} is not set")
+    value = os.environ.get(var_name)
+    if not value:
+        sys.exit(f"The environment variable {var_name} is not set or empty.")
+    return value.strip()
+
 
 if os.path.exists(".env"):
     load_dotenv(verbose=True)
