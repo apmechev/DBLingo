@@ -74,9 +74,10 @@ def get_skills_dict(lingo):
     skills = {}
     if not language_data:
         return skills
-    langs = lingo.get_languages(True)
+    langs = lingo.get_languages()
     for lang in langs:
-        for skill in language_data.get(lang, {}).get("skills", []):
+        lang_abbr = lang.get("learningLanguage")
+        for skill in language_data.get(lang_abbr, {}).get("skills", []):
             skill_id = skill.get("id")
             if not skill_id:
                 continue
