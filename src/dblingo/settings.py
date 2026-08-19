@@ -15,4 +15,16 @@ if os.path.exists(".env"):
 DUOLINGO_JWT = get_required_env_variable("DUOLINGO_JWT")
 USERNAME = get_required_env_variable("DUOLINGO_USERNAME")
 NEXTCLOUD_LINK = os.environ.get("NEXTCLOUD_LINK")
-FILENAME_PATH = "data/duolingo_calendar.jsonl"
+
+DATA_DIR = "data"
+FILENAMES = {
+    "calendar": f"{DATA_DIR}/duolingo_calendar.jsonl",
+    "xp_summaries": f"{DATA_DIR}/duolingo_xp_summaries.jsonl",
+    "league": f"{DATA_DIR}/duolingo_league.jsonl",
+    "daily_quests": f"{DATA_DIR}/duolingo_daily_quests.jsonl",
+    "monthly_challenge": f"{DATA_DIR}/duolingo_monthly_challenge.jsonl",
+    "friends_quest": f"{DATA_DIR}/duolingo_friends_quest.jsonl",
+    "friend_streak": f"{DATA_DIR}/duolingo_friend_streak.jsonl",
+    "streak": f"{DATA_DIR}/duolingo_streak.jsonl",
+}
+FILENAME_PATH = FILENAMES["calendar"]

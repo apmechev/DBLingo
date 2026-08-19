@@ -1,11 +1,10 @@
 """dblingo main module
     This module is the entrypoint for the dblingo package.
     It is responsible for:
-    - getting the duolingo calendar for a given language
-    - getting the skills data for a given language
+    - getting the duolingo data for a given language
     - augmenting the calendar data with skills data
-    - writing the data to a sink
-    - uploading the file to a remote
+    - exporting the data to jsonl sinks
+    - uploading the files to a remote
 
     Returns:
         None
@@ -17,7 +16,14 @@ import duolingo
 
 from dblingo.sinks.jsonl import JSONLSink
 from dblingo.remotes.owncloud import OwncloudRemote
-from dblingo.settings import DUOLINGO_JWT, USERNAME, FILENAME_PATH
+from dblingo.settings import DUOLINGO_JWT, USERNAME, FILENAMES
+from dblingo.utils import (
+    add_local_fields_from_date,
+    add_local_fields_from_ts,
+    add_local_fields_now,
+    get_user_timezone,
+    merge_by_key,
+)
 
 logging.basicConfig(
     level=logging.INFO,
@@ -55,7 +61,6 @@ def augment_course(item, skills):
     item["category"] = skill.get("category")
     item["num_lessons"] = skill.get("num_lessons")
     item["skill_progress"] = skill.get("skill_progress")
-    item["strength"] = skill.get("strength")
     item["num_levels"] = skill.get("num_levels")
     item["levels_finished"] = skill.get("levels_finished")
     item["grammar"] = skill.get("grammar")
@@ -85,27 +90,152 @@ def get_skills_dict(lingo):
     return skills
 
 
+def export_calendar(sink, cal_data, skills, tz):
+    """Merge fetched calendar data into the calendar sink.
+
+    Existing lines are enriched in place when the API returns them with new
+    fields, and lines missing local time fields are backfilled.
+    """
+    existing = {}
+    for item in sink.load():
+        if "datetime" not in item:
+            continue
+        if "DatetimeLocal" not in item:
+            add_local_fields_from_ts(item, tz)
+        existing[item["datetime"]] = item
+
+    for item in cal_data:
+        item = augment_course(item, skills)
+        add_local_fields_from_ts(item, tz)
+        previous = existing.get(item.get("datetime")) or {}
+        previous.update(item)
+        existing[previous.get("datetime")] = previous
+
+    sink.rewrite(sorted(existing.values(), key=lambda x: x.get("datetime") or 0))
+
+
+def export_xp_summaries(sink, lingo, tz):
+    """Export the daily XP summaries, merged by date"""
+    summaries = lingo.get_xp_summaries() or []
+    items = []
+    for summary in summaries:
+        item = dict(summary)
+        date = item.get("date")
+        if date:
+            add_local_fields_from_date(item, date, tz)
+        items.append(item)
+    sink.rewrite(merge_by_key(sink.load(), items, "date"))
+
+
+def export_league(sink, lingo, tz):
+    """Export the current league info, merged by contest start"""
+    info = lingo.get_league_info() or {}
+    if not info:
+        return
+    item = dict(info)
+    add_local_fields_now(item, tz)
+    item["fetched_at"] = item["DatetimeLocal"]
+    if not item.get("contest_start"):
+        item["contest_start"] = item["DateLocal"]
+    sink.rewrite(merge_by_key(sink.load(), [item], "contest_start"))
+
+
+def export_daily_quests(sink, lingo, tz):
+    """Export the daily quests, one line per day"""
+    quests = lingo.get_daily_quests() or []
+    item = {"quests": quests}
+    add_local_fields_now(item, tz)
+    sink.rewrite(merge_by_key(sink.load(), [item], "DateLocal"))
+
+
+def export_monthly_challenge(sink, lingo, tz):
+    """Export the monthly challenge progress, merged by goal id"""
+    data = lingo.get_monthly_challenge() or {}
+    if not data:
+        return
+    item = dict(data)
+    add_local_fields_now(item, tz)
+    item["fetched_at"] = item["DatetimeLocal"]
+    goal_id = (item.get("challenge") or {}).get("goal_id")
+    if not goal_id:
+        goal_id = f"monthly_challenge_{item['DateLocal']}"
+        item["goal_id"] = goal_id
+    item["goal_id"] = goal_id
+    sink.rewrite(merge_by_key(sink.load(), [item], "goal_id"))
+
+
+def export_friends_quest(sink, lingo, tz):
+    """Export the current friends quest, merged by goal id"""
+    quest = lingo.get_friends_quest()
+    if not quest:
+        return
+    item = dict(quest)
+    add_local_fields_now(item, tz)
+    item["fetched_at"] = item["DatetimeLocal"]
+    goal_id = item.get("goal_id")
+    if not goal_id:
+        goal_id = f"friends_quest_{item['DateLocal']}"
+        item["goal_id"] = goal_id
+    sink.rewrite(merge_by_key(sink.load(), [item], "goal_id"))
+
+
+def export_friend_streak(sink, lingo, tz):
+    """Export the friend streaks, merged by match id"""
+    matches = lingo.get_friend_streak() or []
+    items = []
+    for match in matches:
+        item = dict(match)
+        add_local_fields_now(item, tz)
+        match_id = item.get("match_id")
+        if not match_id:
+            match_id = f"match_{item['DateLocal']}"
+            item["match_id"] = match_id
+        items.append(item)
+    sink.rewrite(merge_by_key(sink.load(), items, "match_id"))
+
+
+def export_streak(sink, lingo, tz):
+    """Export the streak info, one line per day"""
+    data = lingo.get_streak_info() or {}
+    if not data:
+        return
+    item = dict(data)
+    add_local_fields_now(item, tz)
+    sink.rewrite(merge_by_key(sink.load(), [item], "DateLocal"))
+
+
 if __name__ == "__main__":
     # Todo: iterate over all languages
     # and return to the currently selected one
     lingo = login()
     study_langs = ["it"]
 
-    sinks = [JSONLSink(FILENAME_PATH)]
-    remotes = [OwncloudRemote()]
+    sinks = {name: JSONLSink(path) for name, path in FILENAMES.items()}
+    remote = OwncloudRemote()
 
+    tz = get_user_timezone(lingo)
     cals = get_cals(lingo, study_langs)
     skills_dict = get_skills_dict(lingo)
 
-
     for language in study_langs:
-        cal_data = cals[language]
+        cal_data = cals.get(language) or []
+        if cal_data:
+            export_calendar(sinks["calendar"], cal_data, skills_dict, tz)
 
-        for sink in sinks:
-            last_timestamp = sink.get_last_timestamp()
-            new_data = [augment_course(item, skills_dict) for item in cal_data if item["datetime"] > last_timestamp]
-            sink.append(new_data)
+    exports = [
+        ("xp_summaries", export_xp_summaries),
+        ("league", export_league),
+        ("daily_quests", export_daily_quests),
+        ("monthly_challenge", export_monthly_challenge),
+        ("friends_quest", export_friends_quest),
+        ("friend_streak", export_friend_streak),
+        ("streak", export_streak),
+    ]
+    for name, export in exports:
+        try:
+            export(sinks[name], lingo, tz)
+        except Exception:
+            logger.exception("Failed to export %s", name)
 
-        for store in remotes:
-            store.upload(FILENAME_PATH)
- 
+    for file_path in FILENAMES.values():
+        remote.upload(file_path)

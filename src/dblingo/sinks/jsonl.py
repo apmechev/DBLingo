@@ -1,6 +1,9 @@
-import os
 import json
+import logging
+import os
 from . import AbstractSink
+
+logger = logging.getLogger(__name__)
 
 class JSONLSink(AbstractSink):
     def __init__(self, file_path):
@@ -14,6 +17,40 @@ class JSONLSink(AbstractSink):
             data (list): list of dicts
         """
         with open(self.file_path, "a+") as _f:
+            for item in data:
+                _f.write(json.dumps(item) + "\n")
+
+    def load(self):
+        """Load all valid JSON lines from the file
+
+        Returns:
+            list: list of dicts
+        """
+        if not os.path.isfile(self.file_path):
+            return []
+
+        items = []
+        with open(self.file_path, "r") as _f:
+            for line in _f:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    item = json.loads(line)
+                except json.JSONDecodeError:
+                    logger.warning("Skipping invalid JSON line in %s", self.file_path)
+                    continue
+                if isinstance(item, dict):
+                    items.append(item)
+        return items
+
+    def rewrite(self, data):
+        """Rewrite the file with the given data
+
+        Args:
+            data (list): list of dicts
+        """
+        with open(self.file_path, "w") as _f:
             for item in data:
                 _f.write(json.dumps(item) + "\n")
 
