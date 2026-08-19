@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "dblingo"
-version = "0.1.0"
+version = "0.2.0"
 description = "Duolingo Backup tool"
 authors = ["Alexandar Mechev <apmechev@gmail.com>"]
 license = "MIT"
@@ -11,7 +11,7 @@ packages = [
 
 [tool.poetry.dependencies]
 python = "^3.9"
-duolingo-api = {git = "https://github.com/apmechev/Duolingo.git"}
+duolingo-api = {git = "https://github.com/apmechev/Duolingo.git", tag='v1.0.0'}
 pyocclient = "^0.6"
 python-dotenv = "^1.0.0"
 selenium = "^4.13.0"
