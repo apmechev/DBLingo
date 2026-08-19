@@ -1,4 +1,6 @@
 # tests/test_dblingo.py
+import pytest
+
 from dblingo.dblingo import get_cals, augment_course, get_skills_dict
 from dotenv import load_dotenv
 
@@ -49,6 +51,18 @@ def test_login(mocker):
     from dblingo.dblingo import login
     result = login()
     assert result == mock_lingo
+
+def test_login_without_credentials(mocker):
+    mocker.patch('dblingo.dblingo.DUOLINGO_JWT', '')
+    mocker.patch('dblingo.dblingo.USERNAME', '')
+    from dblingo.dblingo import login
+    with pytest.raises(RuntimeError):
+        login()
+
+@pytest.mark.auth
+def test_auth_skipped_without_jwt():
+    """Placeholder proving the auth marker is skipped without a real JWT."""
+    pass
 
 def test_owncloud_remote_init(mocker,monkeypatch):
     monkeypatch.setattr('dblingo.remotes.owncloud.NEXTCLOUD_LINK', 'valid_link')

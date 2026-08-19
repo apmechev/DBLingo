@@ -34,6 +34,10 @@ logger = logging.getLogger(__name__)
 def login():
     """Login to duolingo"""
     logger.info("Logging in to duolingo")
+    if not USERNAME or not DUOLINGO_JWT:
+        raise RuntimeError(
+            "DUOLINGO_JWT and DUOLINGO_USERNAME environment variables must be set"
+        )
     lingo = duolingo.Duolingo(USERNAME, jwt=DUOLINGO_JWT)
     return lingo
 
