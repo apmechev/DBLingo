@@ -28,6 +28,3 @@ ruff = "^0.1.10"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
-
-[tool.pytest.ini_options]
-python_paths = ["src"]

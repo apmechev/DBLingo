@@ -51,6 +51,7 @@ def test_login(mocker):
     assert result == mock_lingo
 
 def test_owncloud_remote_init(mocker,monkeypatch):
+    monkeypatch.setattr('dblingo.remotes.owncloud.NEXTCLOUD_LINK', 'valid_link')
     mock_client = mocker.MagicMock()
     mocker.patch('owncloud.Client.from_public_link', return_value=mock_client)
     from dblingo.remotes.owncloud import OwncloudRemote
@@ -58,6 +59,7 @@ def test_owncloud_remote_init(mocker,monkeypatch):
     assert remote.client == mock_client
 
 def test_owncloud_remote_upload(mocker,monkeypatch):
+    monkeypatch.setattr('dblingo.remotes.owncloud.NEXTCLOUD_LINK', 'valid_link')
     mock_client = mocker.MagicMock()
     mocker.patch('owncloud.Client.from_public_link', return_value=mock_client)
     from dblingo.remotes.owncloud import OwncloudRemote
